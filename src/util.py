@@ -1,4 +1,15 @@
-import pygame
+import typing
+
+import pygame.freetype
+import tkinter
+import tkinter.filedialog
+
+
+def createFont(color: typing.Any, size: int, fontLocation: str):
+    font = pygame.freetype.Font(fontLocation, size=size)
+    font.fgcolor = color
+    return font
+
 
 class InputField:
     def __init__(self, pos, size, activeColor, unactiveColor, font, placeholderFont, charLimit: int = 20, surfaceOffset=(0, 0), placeHolderText=""):
@@ -55,7 +66,7 @@ class InputField:
 
 
 class Button:
-    def __init__(self, pos, size, font, text, surfaceOffsets=(0, 0)):
+    def __init__(self, pos, size, font, text, activeColor, unactiveColor, surfaceOffsets=(0, 0), width: int = 0, rounding: int = -1):
         self.x = pos[0]
         self.y = pos[1]
         self.w = size[0]
@@ -63,8 +74,14 @@ class Button:
         self.rect = pygame.Rect(self.x, self.y, self.w, self.h)
         self.font = font
         self.text = text
+        self.color = unactiveColor
+        self.activeColor = activeColor
+        self.unactiveColor = unactiveColor
         self.triggered = False
+        self.hovered = False
         self.surfaceOffset = surfaceOffsets
+        self.width = width
+        self.rounding = rounding
 
     def handleEvents(self, events):
         for event in events:
@@ -72,5 +89,26 @@ class Button:
                 mx, my = pygame.mouse.get_pos()
                 mx -= self.surfaceOffset[0]
                 my -= self.surfaceOffset[1]
-                if self.rect.collidepoint(mx, my):
-                    self.triggered = True
+                self.triggered = self.rect.collidepoint(mx, my)
+
+            elif event.type == pygame.MOUSEMOTION:
+                mx, my = pygame.mouse.get_pos()
+                mx -= self.surfaceOffset[0]
+                my -= self.surfaceOffset[1]
+                self.hovered = self.rect.collidepoint(mx, my)
+
+    def draw(self, screen, offsets=(5, 5)):
+        self.rect = pygame.Rect((self.x, self.y), (self.rect.w, self.rect.h))
+        self.color = self.unactiveColor if not self.hovered else self.activeColor
+        pygame.draw.rect(screen, self.color, self.rect, self.width, self.rounding)
+        self.font.fgcolor = self.color
+        self.font.render_to(screen, ((self.rect.centerx - self.font.get_rect(self.text, size=self.font.size).centerx) + offsets[0], self.y + offsets[1]), self.text)
+
+
+def prompt_file():
+    """Create a Tk file dialog and cleanup when finished"""
+    top = tkinter.Tk()
+    top.withdraw()  # hide window
+    file_name = tkinter.filedialog.askopenfilename(parent=top)
+    top.destroy()
+    return file_name

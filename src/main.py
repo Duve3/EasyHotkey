@@ -11,7 +11,7 @@ def main():
 
     pygame.init()
 
-    RES = (1280, 720)
+    RES = (1080, 720)  # idek what resolution this is
     pygame.display.set_caption("Easy Hotkey (EHK)")
     window = pygame.display.set_mode(RES)
     fpsClock = pygame.time.Clock()
@@ -21,12 +21,14 @@ def main():
 
 
 if __name__ == "__main__":
-    # TODO: replace with some kind of pygame script
-    directoryToFile = input("Whats the exact directory to the file you are converting? ")
+    main()
 
-    with open(directoryToFile) as f:
-        pyhk = parse(f.read())
-
-    print(pyhk)
+    # since the pygame interface is currently not working, please just uncomment the code below when actually using it.
+    # directoryToFile = input("Whats the exact directory to the file you are converting? ")
+    #
+    # with open(directoryToFile) as f:
+    #     pyhk = parse(f.read())
+    #
+    # print(pyhk)
 
 

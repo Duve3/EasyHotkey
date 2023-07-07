@@ -9,4 +9,6 @@ and have features that (for simplicity reasons) EHK will never have.
 ### All the features that I want to add:
 
 - a GUI interface (on map for alpha 0.1.0)
-- a way to convert EHK scripts to AHK scripts (on map for v1.0.0 - non alpha)
+- a way to convert EHK scripts to AHK scripts (on map for official release v1.0.0—no longer in alpha/beta stage)
+- obviously, adding more to EHK scripts such as mouse movement and more (on map for somewhere from alpha 0.1.0 to official release v1.0.0)
+- \+ anything you the user want to add, just put a feature request in the issues tab.
