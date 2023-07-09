@@ -1,7 +1,7 @@
 from EHKFileParser import parse
 import pygame
 import ctypes
-from mainmenu import MainMenu
+from ConvertToPython import PythonConvertMenu
 
 
 # pygame yahoo
@@ -16,8 +16,8 @@ def main():
     window = pygame.display.set_mode(RES)
     fpsClock = pygame.time.Clock()
     fps = 60
-    mm = MainMenu(window, fpsClock, fps, RES)
-    mm.run()
+    pcm = PythonConvertMenu(window, fpsClock, fps, RES)
+    pcm.run()
 
 
 if __name__ == "__main__":

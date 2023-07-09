@@ -1,14 +1,46 @@
-import typing
-
+from typing import Optional
 import pygame.freetype
+from pygame import Surface
 import tkinter
 import tkinter.filedialog
+from typing import Sequence, Tuple, Union
+
+from pygame import Color
+from pygame import Vector2
+
+Coordinate = Union[Tuple[float, float], Sequence[float], Vector2]
+
+# This typehint is used when a function would return an RGBA tuble
+RGBAOutput = Tuple[int, int, int, int]
+ColorValue = Union[Color, int, str, Tuple[int, int, int], RGBAOutput, Sequence[int]]
+
+STYLE_DEFAULT = int
 
 
-def createFont(color: typing.Any, size: int, fontLocation: str):
+def createFont(color: Union[pygame.Color, int, str, Tuple[int, int, int], RGBAOutput, Sequence[int]], size: Union[float, Tuple[float, float]], fontLocation: str):
+    """
+    Outdated func for easily creating fonts, please use the class BetterFont if you can.
+    Creates a pygame.freetype.font and sets the color and size for you
+    :param color: Any color supported by pygame - anything that follows this: typing.Union[Color, int, str, Tuple[int, int, int], RGBAOutput, Sequence[int]]
+    :param size: Just and int for the size value
+    :param fontLocation: the location of the .ttf or similar font file
+    :return: pygame.freetype.Font
+    """
     font = pygame.freetype.Font(fontLocation, size=size)
     font.fgcolor = color
     return font
+
+
+# btw if something isnt type checked (doesnt have the arg: thing) its probably in the util.pyi file.
+class BetterFont(pygame.freetype.Font):
+    def __init__(self, fgColor: Union[Color, int, str, Tuple[int, int, int], RGBAOutput, Sequence[int]], fontSize: Union[float, Tuple[float, float]], location: str, font_index: int = 0, resolution: int = 0, ucs4: int = False):
+        super().__init__(location, size=fontSize, font_index=font_index, resolution=resolution, ucs4=ucs4)
+        self.fgcolor = fgColor
+
+    def render_multiline_to(self, surf: Surface, dest, text: str, fgcolor: Optional[ColorValue] = None, bgcolor: Optional[ColorValue] = None, style: int = STYLE_DEFAULT, rotation: int = 0, size: float = 0) -> pygame.rect.Rect:
+        ListText = text.splitlines()
+        for i, line in enumerate(ListText):
+            self.render_to(surf=surf, dest=(dest[0] + (i * self.size + 10), dest[1]), text=line, fgcolor=fgcolor, bgcolor=bgcolor, style=style, rotation=rotation, size=size)
 
 
 class InputField:
@@ -105,10 +137,15 @@ class Button:
         self.font.render_to(screen, ((self.rect.centerx - self.font.get_rect(self.text, size=self.font.size).centerx) + offsets[0], self.y + offsets[1]), self.text)
 
 
-def prompt_file():
+def prompt_file(filetypes: list = None, savedialog=False):
     """Create a Tk file dialog and cleanup when finished"""
+    if filetypes is None:
+        filetypes = [("EasyHotkey Files", "*.ehk")]
     top = tkinter.Tk()
     top.withdraw()  # hide window
-    file_name = tkinter.filedialog.askopenfilename(parent=top)
+    if not savedialog:
+        file_name = tkinter.filedialog.askopenfilename(parent=top, filetypes=filetypes)
+    else:
+        file_name = tkinter.filedialog.asksaveasfilename(parent=top, filetypes=filetypes)
     top.destroy()
     return file_name
