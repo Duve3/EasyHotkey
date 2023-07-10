@@ -1,5 +1,5 @@
 import pygame
-from utility.util import Button, createFont, prompt_file
+from utility.util import Button, createFont, prompt_file, BetterFont
 import utility.constants as constants
 from EHKFileParser import parse
 
@@ -33,9 +33,9 @@ class PythonConvertMenu:
         # other
         font = createFont(constants.white, 50, "./assets/CourierPrimeCode-Regular.ttf")
         self.convertButton = Button((self.screen.get_rect().centerx - 125, 600), (250, 50), font, "CONVERT", constants.whiteGray, constants.white, width=3, rounding=5)
-        self.convertStatus = "Waiting"
+        self.convertStatus = "Status:\nWaiting"
         self.RECT_Convert = pygame.Rect((-4, 400), (350, 405))
-        self.FONT_Convert = createFont(constants.white, 40, "./assets/CourierPrimeCode-Regular.ttf")
+        self.FONT_Convert = BetterFont(constants.white, 40, "./assets/CourierPrimeCode-Regular.ttf")
 
 
     def run(self) -> None:  # noqa:E303
@@ -56,7 +56,7 @@ class PythonConvertMenu:
             self.screen.fill(constants.black)
 
             if self.FileButton.triggered:
-                self.directoryToScript = prompt_file()
+                self.directoryToScript = prompt_file(savedialog=False, filetypes=[("EasyHotkey Files", "*.ehk")])
                 self.FileButton.triggered = False
 
             if self.OUTPUT_FileButton.triggered:
@@ -72,7 +72,7 @@ class PythonConvertMenu:
                         outputFile.write(res)
                         outputFile.truncate()
                 else:
-                    self.convertStatus = "Failed"
+                    self.convertStatus = "Status:\nFailed"
 
                 self.convertButton.triggered = False
 
@@ -92,5 +92,6 @@ class PythonConvertMenu:
             # other
             self.convertButton.draw(self.screen, offsets=(2, 10))
             pygame.draw.rect(self.screen, constants.white, self.RECT_Convert, 3, 5)
+            self.FONT_Convert.multiline_render_to(self.screen, (10, 420), self.convertStatus)
 
             pygame.display.flip()

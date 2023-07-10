@@ -14,7 +14,7 @@ Coordinate = Union[Tuple[float, float], Sequence[float], Vector2]
 RGBAOutput = Tuple[int, int, int, int]
 ColorValue = Union[Color, int, str, Tuple[int, int, int], RGBAOutput, Sequence[int]]
 
-STYLE_DEFAULT = int
+STYLE_DEFAULT = pygame.freetype.STYLE_DEFAULT
 
 
 def createFont(color: Union[pygame.Color, int, str, Tuple[int, int, int], RGBAOutput, Sequence[int]], size: Union[float, Tuple[float, float]], fontLocation: str):
@@ -37,10 +37,24 @@ class BetterFont(pygame.freetype.Font):
         super().__init__(location, size=fontSize, font_index=font_index, resolution=resolution, ucs4=ucs4)
         self.fgcolor = fgColor
 
-    def render_multiline_to(self, surf: Surface, dest, text: str, fgcolor: Optional[ColorValue] = None, bgcolor: Optional[ColorValue] = None, style: int = STYLE_DEFAULT, rotation: int = 0, size: float = 0) -> pygame.rect.Rect:
+    def multiline_render_to(self, surf: Surface, dest, text: str, fgcolor: Optional[ColorValue] = None, bgcolor: Optional[ColorValue] = None, style: int = STYLE_DEFAULT, rotation: int = 0, size: float = 0) -> list[pygame.rect.Rect]:
         ListText = text.splitlines()
+        ListRects = []
         for i, line in enumerate(ListText):
-            self.render_to(surf=surf, dest=(dest[0] + (i * self.size + 10), dest[1]), text=line, fgcolor=fgcolor, bgcolor=bgcolor, style=style, rotation=rotation, size=size)
+            rect = self.render_to(surf=surf, dest=(dest[0], dest[1] + (i * self.size + 10)), text=line, fgcolor=fgcolor, bgcolor=bgcolor, style=style, rotation=rotation, size=size)
+            ListRects.append(rect)
+
+        return ListRects
+
+    # probably works idk
+    def multiline_render(self, text: str, fgcolor: Optional[ColorValue] = None, bgcolor: Optional[ColorValue] = None, style: int = STYLE_DEFAULT, rotation: int = 0, size: float = 0,) -> list[Tuple[Surface, pygame.rect.Rect]]:
+        ListText = text.splitlines()
+        ListSurfs = []
+        for i, line in enumerate(ListText):
+            surfRect = self.render(text=line, fgcolor=fgcolor, bgcolor=bgcolor, style=style, rotation=rotation, size=size)
+            ListSurfs.append(surfRect)
+
+        return ListSurfs
 
 
 class InputField:

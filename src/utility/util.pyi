@@ -4,7 +4,7 @@ from typing import Union, Tuple, Sequence, Optional, Iterable
 from pygame import Color, Surface, Rect
 
 
-STYLE_DEFAULT = int
+STYLE_DEFAULT: int
 
 
 class BetterFont(pygame.freetype.Font):
@@ -16,7 +16,7 @@ class BetterFont(pygame.freetype.Font):
                  resolution: int = 0,
                  ucs4: int = False) -> None: ...
 
-    def render_multiline_to(self,
+    def multiline_render_to(self,
                             surf: Surface,
                             dest: RectValue,
                             text: str,
@@ -24,7 +24,15 @@ class BetterFont(pygame.freetype.Font):
                             bgcolor: Optional[ColorValue] = None,
                             style: int = STYLE_DEFAULT,
                             rotation: int = 0,
-                            size: float = 0) -> pygame.rect.Rect: ...
+                            size: float = 0) -> list[pygame.rect.Rect]: ...
+
+    def multiline_render(self,
+                         text: str,
+                         fgcolor: Optional[ColorValue] = None,
+                         bgcolor: Optional[ColorValue] = None,
+                         style: int = STYLE_DEFAULT,
+                         rotation: int = 0,
+                         size: float = 0,) -> list[Tuple[Surface, pygame.rect.Rect]]: ...
 
 
 class InputField:
