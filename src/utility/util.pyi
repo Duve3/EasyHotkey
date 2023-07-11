@@ -8,13 +8,15 @@ STYLE_DEFAULT: int
 
 
 class BetterFont(pygame.freetype.Font):
+    ColorList: list[Union[Color, int, str, Tuple[int, int, int]]] | None
     def __init__(self,
                  fgColor: Union[Color, int, str, Tuple[int, int, int], RGBAOutput, Sequence[int]],
                  fontSize: Union[float, Tuple[float, float]],
                  location: str,
                  font_index: int = 0,
                  resolution: int = 0,
-                 ucs4: int = False) -> None: ...
+                 ucs4: int = False,
+                 ColorList: list[Union[Color, int, str, Tuple[int, int, int], RGBAOutput, Sequence[int]]] = None) -> None: ...
 
     def multiline_render_to(self,
                             surf: Surface,

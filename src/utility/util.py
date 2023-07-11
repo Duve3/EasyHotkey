@@ -33,14 +33,18 @@ def createFont(color: Union[pygame.Color, int, str, Tuple[int, int, int], RGBAOu
 
 # btw if something isnt type checked (doesnt have the arg: thing) its probably in the util.pyi file.
 class BetterFont(pygame.freetype.Font):
-    def __init__(self, fgColor: Union[Color, int, str, Tuple[int, int, int], RGBAOutput, Sequence[int]], fontSize: Union[float, Tuple[float, float]], location: str, font_index: int = 0, resolution: int = 0, ucs4: int = False):
+    def __init__(self, fgColor: Union[Color, int, str, Tuple[int, int, int], RGBAOutput, Sequence[int]], fontSize: Union[float, Tuple[float, float]], location: str, font_index: int = 0, resolution: int = 0, ucs4: int = False, ColorList: list[Union[Color, int, str, Tuple[int, int, int], RGBAOutput, Sequence[int]]] = None):
         super().__init__(location, size=fontSize, font_index=font_index, resolution=resolution, ucs4=ucs4)
         self.fgcolor = fgColor
+        self.ColorList = ColorList
 
     def multiline_render_to(self, surf: Surface, dest, text: str, fgcolor: Optional[ColorValue] = None, bgcolor: Optional[ColorValue] = None, style: int = STYLE_DEFAULT, rotation: int = 0, size: float = 0) -> list[pygame.rect.Rect]:
         ListText = text.splitlines()
         ListRects = []
+        useColorList = True if self.ColorList is not None else False
         for i, line in enumerate(ListText):
+            if useColorList:
+                self.fgcolor = self.ColorList[i % len(self.ColorList)]
             rect = self.render_to(surf=surf, dest=(dest[0], dest[1] + (i * self.size + 10)), text=line, fgcolor=fgcolor, bgcolor=bgcolor, style=style, rotation=rotation, size=size)
             ListRects.append(rect)
 

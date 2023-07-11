@@ -1,4 +1,4 @@
-from EHKFileParser import parse
+from SHKFileParser import parse
 import pygame
 import ctypes
 from ConvertToPython import PythonConvertMenu
@@ -12,7 +12,7 @@ def main():
     pygame.init()
 
     RES = (1080, 720)  # idek what resolution this is
-    pygame.display.set_caption("Easy Hotkey (EHK)")
+    pygame.display.set_caption("Simple Hotkey (SHK)")
     window = pygame.display.set_mode(RES)
     fpsClock = pygame.time.Clock()
     fps = 60

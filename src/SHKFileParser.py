@@ -120,7 +120,6 @@ def __timeGetter(timeString: str) -> float:
 
 
 def __tokenHandler(text: str, tokens: dict, winapi: bool) -> str:
-    # TODO: implement typing using the "type" keyword in ehk scripts
     TokenKEY_keyOffset = 2
     TokenKEY_operationOffset = 4
     TokenPAUSE_lengthOffset = 1

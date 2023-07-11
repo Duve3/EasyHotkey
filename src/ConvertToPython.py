@@ -1,7 +1,7 @@
 import pygame
 from utility.util import Button, createFont, prompt_file, BetterFont
 import utility.constants as constants
-from EHKFileParser import parse
+from SHKFileParser import parse
 
 
 class PythonConvertMenu:
@@ -34,8 +34,8 @@ class PythonConvertMenu:
         font = createFont(constants.white, 50, "./assets/CourierPrimeCode-Regular.ttf")
         self.convertButton = Button((self.screen.get_rect().centerx - 125, 600), (250, 50), font, "CONVERT", constants.whiteGray, constants.white, width=3, rounding=5)
         self.convertStatus = "Status:\nWaiting"
-        self.RECT_Convert = pygame.Rect((-4, 400), (350, 405))
-        self.FONT_Convert = BetterFont(constants.white, 40, "./assets/CourierPrimeCode-Regular.ttf")
+        self.RECT_Convert = pygame.Rect((-4, 550), (350, 130))
+        self.FONT_Convert = BetterFont(constants.white, 40, "./assets/CourierPrimeCode-Regular.ttf", ColorList=[constants.white, constants.white])
 
 
     def run(self) -> None:  # noqa:E303
@@ -56,11 +56,13 @@ class PythonConvertMenu:
             self.screen.fill(constants.black)
 
             if self.FileButton.triggered:
-                self.directoryToScript = prompt_file(savedialog=False, filetypes=[("EasyHotkey Files", "*.ehk")])
+                self.directoryToScript = prompt_file(savedialog=False, filetypes=[("SimpleHotkey Files", "*.shk"), ("EasyHotkey Files", "*.ehk")])
                 self.FileButton.triggered = False
 
             if self.OUTPUT_FileButton.triggered:
                 self.OUTPUT_DirectoryToFile = prompt_file(savedialog=True, filetypes=[("Python Hotkey Script", "*.pyhk")])
+                if self.OUTPUT_DirectoryToFile.count(".pyhk") < 1:
+                    self.OUTPUT_DirectoryToFile += ".pyhk"
                 self.OUTPUT_FileButton.triggered = False
 
             if self.convertButton.triggered:
@@ -71,14 +73,18 @@ class PythonConvertMenu:
                     with open(self.OUTPUT_DirectoryToFile, "w") as outputFile:
                         outputFile.write(res)
                         outputFile.truncate()
+
+                    self.convertStatus = "Status:\nSuccess"
+                    self.FONT_Convert.ColorList = [constants.white, constants.green]
                 else:
                     self.convertStatus = "Status:\nFailed"
+                    self.FONT_Convert.ColorList = [constants.white, constants.red]
 
                 self.convertButton.triggered = False
 
             # rendering
-            # EHK file
-            self.FONT_FileToParse.render_to(self.screen, (30, 10), "EHK File: ")
+            # SHK file
+            self.FONT_FileToParse.render_to(self.screen, (30, 10), "SHK File: ")
             pygame.draw.rect(self.screen, constants.white, self.FileLocationOutline, 3, 5)
             self.FLFont.render_to(self.screen, (self.FileLocationOutline.x + 10, self.FileLocationOutline.y + 15), self.directoryToScript)
             self.FileButton.draw(self.screen, offsets=(2, 14))
@@ -92,6 +98,6 @@ class PythonConvertMenu:
             # other
             self.convertButton.draw(self.screen, offsets=(2, 10))
             pygame.draw.rect(self.screen, constants.white, self.RECT_Convert, 3, 5)
-            self.FONT_Convert.multiline_render_to(self.screen, (10, 420), self.convertStatus)
+            self.FONT_Convert.multiline_render_to(self.screen, (10, self.RECT_Convert.y + 22), self.convertStatus)
 
             pygame.display.flip()
