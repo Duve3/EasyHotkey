@@ -36,6 +36,15 @@ class BetterFont(pygame.freetype.Font):
                          rotation: int = 0,
                          size: float = 0,) -> list[Tuple[Surface, pygame.rect.Rect]]: ...
 
+    def get_center(self,
+                   surf: Surface,
+                   text: str,
+                   style: int = STYLE_DEFAULT,
+                   rotation: int = 0,
+                   size: float = 0,
+                   x: bool = True,
+                   y: bool = False) -> pygame.rect.Rect: ...
+
 
 class InputField:
     x: Union[float, int]

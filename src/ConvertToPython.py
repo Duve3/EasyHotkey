@@ -2,6 +2,7 @@ import pygame
 from utility.util import Button, createFont, prompt_file, BetterFont
 import utility.constants as constants
 from SHKFileParser import parse
+import json
 
 
 class PythonConvertMenu:
@@ -11,7 +12,7 @@ class PythonConvertMenu:
         self.fpsClock = fpsClock
         self.gameFPS = fps
         # EHK file stuff
-        self.FileLocationOutline = pygame.Rect((20, 50), (900, 50))
+        self.FileLocationOutline = pygame.Rect((20, 200), (900, 50))
         self.FLFont = createFont(constants.white, 25, "./assets/CourierPrimeCode-Regular.ttf")
         buttonPos = (self.FileLocationOutline.x + (self.FileLocationOutline.w + 20), self.FileLocationOutline.y)
         buttonSize = (125, self.FileLocationOutline.height)
@@ -21,7 +22,7 @@ class PythonConvertMenu:
         self.directoryToScript = ""
 
         # output file stuff
-        self.OUTPUT_FileLocationOutline = pygame.Rect((20, 200), (900, 50))
+        self.OUTPUT_FileLocationOutline = pygame.Rect((20, self.FileLocationOutline.y + 150), self.FileLocationOutline.size)
         self.OUTPUT_FLFont = createFont(constants.white, 25, "./assets/CourierPrimeCode-Regular.ttf")
         buttonPos = (self.OUTPUT_FileLocationOutline.x + (self.OUTPUT_FileLocationOutline.w + 20), self.OUTPUT_FileLocationOutline.y)
         buttonSize = (125, self.OUTPUT_FileLocationOutline.height)
@@ -36,6 +37,13 @@ class PythonConvertMenu:
         self.convertStatus = "Status:\nWaiting"
         self.RECT_Convert = pygame.Rect((-4, 550), (350, 130))
         self.FONT_Convert = BetterFont(constants.white, 40, "./assets/CourierPrimeCode-Regular.ttf", ColorList=[constants.white, constants.white])
+        self.FONT_TopText = BetterFont(constants.white, 50, "./assets/CourierPrimeCode-Regular.ttf")
+
+        with open("./ErrorCodes.json") as ecf:
+            Errors = json.loads(ecf.read())
+            self.errors = Errors["PythonConvertMenu"]
+
+        self.BUFFER_Error = ""
 
 
     def run(self) -> None:  # noqa:E303
@@ -66,31 +74,45 @@ class PythonConvertMenu:
                 self.OUTPUT_FileButton.triggered = False
 
             if self.convertButton.triggered:
-                if self.OUTPUT_DirectoryToFile != "" and self.directoryToScript != "":
-                    with open(self.directoryToScript) as inputFile:
-                        res = parse(inputFile.read())
+                try:
+                    if self.OUTPUT_DirectoryToFile != "" and self.directoryToScript != "":
+                        try:
+                            with open(self.directoryToScript) as inputFile:
+                                res = parse(inputFile.read())
+                        except PermissionError:
+                            self.BUFFER_Error = "READ_PERMISSION"
+                        except OSError:
+                            self.BUFFER_Error = "OS_ERROR"
+                        except ValueError:
+                            self.BUFFER_Error = "VALUE_ERROR"
 
-                    with open(self.OUTPUT_DirectoryToFile, "w") as outputFile:
-                        outputFile.write(res)
-                        outputFile.truncate()
+                        with open(self.OUTPUT_DirectoryToFile, "w") as outputFile:
+                            outputFile.write(res)
+                            outputFile.truncate()
 
-                    self.convertStatus = "Status:\nSuccess"
-                    self.FONT_Convert.ColorList = [constants.white, constants.green]
-                else:
-                    self.convertStatus = "Status:\nFailed"
-                    self.FONT_Convert.ColorList = [constants.white, constants.red]
+                        self.convertStatus = "Status:\nSuccess"
+                        self.FONT_Convert.ColorList = [constants.white, constants.green]
+                    else:
+                        self.BUFFER_Error = "MISSING_FILES"
+                        raise Exception  # to trigger the FAILED message
+
+                except Exception:  # noqa:broad_exception
+                    reason = self.BUFFER_Error if self.BUFFER_Error != "" else "UNKNOWN"
+                    self.convertStatus = f"Status:\nFailed (E:{self.errors[reason]})"
+                    self.BUFFER_Error = ""  # reset the buffer
+                    self.FONT_Convert.ColorList = [constants.white, constants.red]  # make sure its white then red color list
 
                 self.convertButton.triggered = False
 
             # rendering
             # SHK file
-            self.FONT_FileToParse.render_to(self.screen, (30, 10), "SHK File: ")
+            self.FONT_FileToParse.render_to(self.screen, (30, self.FileLocationOutline.y - 40), "SHK File: ")
             pygame.draw.rect(self.screen, constants.white, self.FileLocationOutline, 3, 5)
             self.FLFont.render_to(self.screen, (self.FileLocationOutline.x + 10, self.FileLocationOutline.y + 15), self.directoryToScript)
             self.FileButton.draw(self.screen, offsets=(2, 14))
 
             # output file
-            self.OUTPUT_FONT_ResultFile.render_to(self.screen, (30, 150), "Result File: ")
+            self.OUTPUT_FONT_ResultFile.render_to(self.screen, (30, self.OUTPUT_FileLocationOutline.y - 40), "Result File: ")
             pygame.draw.rect(self.screen, constants.white, self.OUTPUT_FileLocationOutline, 3, 5)
             self.OUTPUT_FLFont.render_to(self.screen, (self.OUTPUT_FileLocationOutline.x + 10, self.OUTPUT_FileLocationOutline.y + 15), self.OUTPUT_DirectoryToFile)
             self.OUTPUT_FileButton.draw(self.screen, offsets=(2, 14))
@@ -99,5 +121,7 @@ class PythonConvertMenu:
             self.convertButton.draw(self.screen, offsets=(2, 10))
             pygame.draw.rect(self.screen, constants.white, self.RECT_Convert, 3, 5)
             self.FONT_Convert.multiline_render_to(self.screen, (10, self.RECT_Convert.y + 22), self.convertStatus)
+
+            self.FONT_TopText.render_to(self.screen, (self.FONT_TopText.get_center(self.screen, "SHK -> Python Menu", x=True).x, 40), "SHK -> Python Menu")
 
             pygame.display.flip()

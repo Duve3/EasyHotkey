@@ -23,7 +23,7 @@ def main():
 if __name__ == "__main__":
     main()
 
-    # since the pygame interface is currently not working, please just uncomment the code below when actually using EHK.
+    # since the pygame interface is currently not working, please just uncomment the code below when actually using SHK.
     # directoryToFile = input("What's the exact directory to the file you are converting? ")
     #
     # with open(directoryToFile) as f:

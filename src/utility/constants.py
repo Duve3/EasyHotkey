@@ -1,8 +1,13 @@
 from pygame import Color
+from typing import Union, Sequence, Tuple
+
+
+RGBAOutput = Tuple[int, int, int, int]
+ColorValue = Union[Color, int, str, Tuple[int, int, int], RGBAOutput, Sequence[int]]
 
 
 class __CustomColor(Color):
-    def __init__(self, colorTuple, a: int = 255):  # accepts list too
+    def __init__(self, colorTuple: ColorValue, a: int = 255):
         Color.__init__(self, colorTuple[0], colorTuple[1], colorTuple[2], a)
         self.color = colorTuple
 

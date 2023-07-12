@@ -31,7 +31,8 @@ def createFont(color: Union[pygame.Color, int, str, Tuple[int, int, int], RGBAOu
     return font
 
 
-# btw if something isnt type checked (doesnt have the arg: thing) its probably in the util.pyi file.
+# Btw if something isn't type checked (doesn't have the arg: thing) its probably in the util.pyi file.
+# This is because of some type checking things not working in normal python files and must be put in pyi files.
 class BetterFont(pygame.freetype.Font):
     def __init__(self, fgColor: Union[Color, int, str, Tuple[int, int, int], RGBAOutput, Sequence[int]], fontSize: Union[float, Tuple[float, float]], location: str, font_index: int = 0, resolution: int = 0, ucs4: int = False, ColorList: list[Union[Color, int, str, Tuple[int, int, int], RGBAOutput, Sequence[int]]] = None):
         super().__init__(location, size=fontSize, font_index=font_index, resolution=resolution, ucs4=ucs4)
@@ -50,8 +51,8 @@ class BetterFont(pygame.freetype.Font):
 
         return ListRects
 
-    # probably works idk
-    def multiline_render(self, text: str, fgcolor: Optional[ColorValue] = None, bgcolor: Optional[ColorValue] = None, style: int = STYLE_DEFAULT, rotation: int = 0, size: float = 0,) -> list[Tuple[Surface, pygame.rect.Rect]]:
+    # probably works IDK
+    def multiline_render(self, text: str, fgcolor: Optional[ColorValue] = None, bgcolor: Optional[ColorValue] = None, style: int = STYLE_DEFAULT, rotation: int = 0, size: float = 0) -> list[Tuple[Surface, pygame.rect.Rect]]:
         ListText = text.splitlines()
         ListSurfs = []
         for i, line in enumerate(ListText):
@@ -59,6 +60,17 @@ class BetterFont(pygame.freetype.Font):
             ListSurfs.append(surfRect)
 
         return ListSurfs
+
+    def get_center(self, surf: Surface, text: str, style: int = STYLE_DEFAULT, rotation: int = 0, size: float = 0, x: bool = True, y: bool = False) -> pygame.rect.Rect:
+        rect = self.get_rect(text=text, style=style, rotation=rotation, size=size)
+        if x:
+            rect.centerx = surf.get_rect().centerx
+
+        if y:
+            rect.centery = surf.get_rect().centery
+
+        return rect
+
 
 
 class InputField:
@@ -93,11 +105,10 @@ class InputField:
                 # Check for backspace
                 if event.key == pygame.K_BACKSPACE:
 
-                    # get text input from 0 to -1 i.e. end.
+                    # get text input from 0 to -1
                     self.text = self.text[:-1]
 
-                # Unicode standard is used for string
-                # formation
+                # Unicode standard is used for string formation
                 elif len(self.text) < self.charLimit:
                     self.text += event.unicode
 
