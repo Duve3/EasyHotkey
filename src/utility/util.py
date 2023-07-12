@@ -1,10 +1,10 @@
+from enum import Enum
 from typing import Optional
 import pygame.freetype
 from pygame import Surface
 import tkinter
 import tkinter.filedialog
 from typing import Sequence, Tuple, Union
-
 from pygame import Color
 from pygame import Vector2
 
@@ -70,7 +70,6 @@ class BetterFont(pygame.freetype.Font):
             rect.centery = surf.get_rect().centery
 
         return rect
-
 
 
 class InputField:
@@ -178,3 +177,9 @@ def prompt_file(filetypes: list = None, savedialog=False):
         file_name = tkinter.filedialog.asksaveasfilename(parent=top, filetypes=filetypes)
     top.destroy()
     return file_name
+
+
+class MenuResponses(Enum):
+    QUIT = 1
+    EnterPCMMenu = 2
+    EnterMainMenu = 3

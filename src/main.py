@@ -1,7 +1,8 @@
-from SHKFileParser import parse
+from utility.util import MenuResponses
 import pygame
 import ctypes
 from ConvertToPython import PythonConvertMenu
+from mainmenu import MainMenu
 
 
 # pygame yahoo
@@ -17,7 +18,15 @@ def main():
     fpsClock = pygame.time.Clock()
     fps = 60
     pcm = PythonConvertMenu(window, fpsClock, fps, RES)
-    pcm.run()
+    mm = MainMenu(window, fpsClock, fps, RES)
+    response = mm.run()
+    while response != MenuResponses.QUIT:
+        if response == MenuResponses.QUIT:
+            return
+        elif response == MenuResponses.EnterPCMMenu:
+            response = pcm.run()
+        elif response == MenuResponses.EnterMainMenu:
+            response = mm.run()
 
 
 if __name__ == "__main__":

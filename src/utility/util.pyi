@@ -2,6 +2,7 @@ import pygame.freetype
 from _common import RGBAOutput, ColorValue, RectValue, Coordinate, FontValue
 from typing import Union, Tuple, Sequence, Optional, Iterable
 from pygame import Color, Surface, Rect
+from enum import Enum
 
 
 STYLE_DEFAULT: int
@@ -122,3 +123,9 @@ def createFont(color: Union[pygame.Color, int, str, Tuple[int, int, int], RGBAOu
 
 def prompt_file(filetypes: list,
                 savedialog: bool) -> str: ...
+
+
+class MenuResponses(Enum):
+    QUIT = 1
+    EnterPCMMenu = 2
+    EnterMainMenu = 3

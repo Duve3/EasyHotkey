@@ -1,5 +1,5 @@
 import pygame
-from utility.util import Button, createFont, prompt_file, BetterFont
+from utility.util import Button, createFont, prompt_file, BetterFont, MenuResponses
 import utility.constants as constants
 from SHKFileParser import parse
 import json
@@ -11,7 +11,7 @@ class PythonConvertMenu:
         self.screen = display
         self.fpsClock = fpsClock
         self.gameFPS = fps
-        # EHK file stuff
+        # SHK file stuff
         self.FileLocationOutline = pygame.Rect((20, 200), (900, 50))
         self.FLFont = createFont(constants.white, 25, "./assets/CourierPrimeCode-Regular.ttf")
         buttonPos = (self.FileLocationOutline.x + (self.FileLocationOutline.w + 20), self.FileLocationOutline.y)
@@ -46,7 +46,8 @@ class PythonConvertMenu:
         self.BUFFER_Error = ""
 
 
-    def run(self) -> None:  # noqa:E303
+
+    def run(self) -> MenuResponses:  # noqa:E303
         while True:
             self.fpsClock.tick(self.gameFPS)
 
@@ -59,7 +60,7 @@ class PythonConvertMenu:
             # event handling
             for event in events:
                 if event.type == pygame.QUIT:
-                    return
+                    return MenuResponses.QUIT
 
             self.screen.fill(constants.black)
 
@@ -68,7 +69,7 @@ class PythonConvertMenu:
                 self.FileButton.triggered = False
 
             if self.OUTPUT_FileButton.triggered:
-                self.OUTPUT_DirectoryToFile = prompt_file(savedialog=True, filetypes=[("Python Hotkey Script", "*.pyhk")])
+                self.OUTPUT_DirectoryToFile = prompt_file(savedialog=True, filetypes=[("Python Script", "*.py")])
                 if self.OUTPUT_DirectoryToFile.count(".pyhk") < 1:
                     self.OUTPUT_DirectoryToFile += ".pyhk"
                 self.OUTPUT_FileButton.triggered = False
