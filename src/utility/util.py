@@ -186,6 +186,7 @@ class MenuResponses(Enum):
     QUIT = 1
     EnterPCMMenu = 2
     EnterMainMenu = 3
+    EnterExecuteMenu = 4
 
 
 class FileSelector:

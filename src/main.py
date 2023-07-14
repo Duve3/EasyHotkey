@@ -3,11 +3,12 @@ import pygame
 import ctypes
 from ConvertToPython import PythonConvertMenu
 from mainmenu import MainMenu
+from executeMenu import ExecuteMenu
 
 
 # pygame yahoo
 def main():
-    myappid = u'alterra.software.easyhotkey.main'  # arbitrary string
+    myappid = u'alterra.software.simplehotkey.testing'  # arbitrary string
     ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
     pygame.init()
@@ -19,8 +20,9 @@ def main():
     fps = 60
     pcm = PythonConvertMenu(window, fpsClock, fps, RES)
     mm = MainMenu(window, fpsClock, fps, RES)
+    em = ExecuteMenu(window, fpsClock, fps, RES)
     response = mm.run()
-    while response != MenuResponses.QUIT:
+    while True:
         if response == MenuResponses.QUIT:
             return
         elif response == MenuResponses.EnterPCMMenu:
@@ -29,6 +31,9 @@ def main():
         elif response == MenuResponses.EnterMainMenu:
             mm.reset()
             response = mm.run()
+        elif response == MenuResponses.EnterExecuteMenu:
+            em.reset()
+            response = em.run()
 
 
 if __name__ == "__main__":

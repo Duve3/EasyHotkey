@@ -1,3 +1,5 @@
+from builtins import function
+
 import pygame.freetype
 from _common import RGBAOutput, ColorValue, RectValue, Coordinate, FontValue
 from typing import Union, Tuple, Sequence, Optional, Iterable
@@ -129,6 +131,7 @@ class MenuResponses(Enum):
     QUIT = 1
     EnterPCMMenu = 2
     EnterMainMenu = 3
+    EnterExecuteMenu = 4
 
 class FileSelector:
     FileLocationOutline: pygame.Rect
@@ -157,4 +160,5 @@ class FileSelector:
     def handle_events(self,
                       events: list[pygame.event],
                       HandleTrigger: bool = True,
+                      CustomFunc: function = None,
                       FileTypes: list[tuple[str, str]] = None) -> bool | None: ...
