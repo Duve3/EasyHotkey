@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+from builtins import function
 from enum import Enum
 from typing import Optional
 import pygame.freetype
@@ -183,3 +186,43 @@ class MenuResponses(Enum):
     QUIT = 1
     EnterPCMMenu = 2
     EnterMainMenu = 3
+
+
+class FileSelector:
+    def __init__(self, Pos: Coordinate, Width: float, FontColor: ColorValue, RectColor: ColorValue, ButtonSize: float, ButtonActiveColor: ColorValue, ButtonInactiveColor: ColorValue, TitleText: str, ButtonWidth: int = 0, rounding: int = 0, FontLocation: str = "./assets/CourierPrimeCode-Regular.ttf"):
+        self.FileLocationOutline = pygame.Rect(Pos, (Width, 50))
+        self.FONT_FileLocation = createFont(FontColor, 25, FontLocation)
+        buttonPos = (self.FileLocationOutline.x + (self.FileLocationOutline.w + 20), self.FileLocationOutline.y)
+        buttonSize = (ButtonSize, self.FileLocationOutline.height)
+        buttonFont = createFont(FontColor, 30, FontLocation)
+        self.FileButton = Button(buttonPos, buttonSize, buttonFont, "browse", ButtonActiveColor, ButtonInactiveColor,
+                                 width=ButtonWidth, rounding=rounding)
+        self.FONT_FileToParse = createFont(FontColor, 40, FontLocation)
+        self.directoryToFile = ""
+        self.Title = TitleText
+        self.RectColor = RectColor
+
+    def render_to(self, display: pygame.Surface):
+        self.FONT_FileToParse.render_to(display, (30, self.FileLocationOutline.y - 40), self.Title)
+        pygame.draw.rect(display, self.RectColor, self.FileLocationOutline, self.FileButton.width, self.FileButton.rounding)
+        if self.FONT_FileLocation.get_rect(self.directoryToFile, size=self.FONT_FileLocation.size).width > self.FileLocationOutline.width:
+            self.FONT_FileLocation.size -= 1
+        self.FONT_FileLocation.render_to(display, (self.FileLocationOutline.x + 10, self.FileLocationOutline.y + 15), self.directoryToFile)
+        self.FileButton.draw(display, offsets=(2, 14))
+
+    def handle_events(self, events: list[pygame.event], HandleTrigger: bool = True, CustomFunc: function = None, FileTypes: list[tuple[str, str]] = None) -> bool | None:
+        if FileTypes is None:
+            FileTypes = [("SimpleHotkey Files", "*.shk"), ("EasyHotkey Files", "*.ehk")]
+        self.FileButton.handleEvents(events)
+
+        if self.FileButton.triggered:
+            if HandleTrigger:
+                self.directoryToFile = prompt_file(savedialog=False, filetypes=FileTypes)
+                self.FileButton.triggered = False
+            elif CustomFunc is not None:
+                CustomFunc()
+                self.FileButton.triggered = False
+                return True
+            else:
+                self.FileButton.triggered = False
+                return True

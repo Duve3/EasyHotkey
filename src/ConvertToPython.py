@@ -1,34 +1,20 @@
 import pygame
-from utility.util import Button, createFont, prompt_file, BetterFont, MenuResponses
+from utility.util import Button, createFont, prompt_file, BetterFont, MenuResponses, FileSelector
 import utility.constants as constants
 from SHKFileParser import parse
 import json
+from utility.menus import Menu
 
 
-class PythonConvertMenu:
+class PythonConvertMenu(Menu):
     def __init__(self, display: pygame.Surface, fpsClock: pygame.time.Clock, fps, res):
-        self.res = (res[0], res[1])
-        self.screen = display
-        self.fpsClock = fpsClock
-        self.gameFPS = fps
+        super().__init__(display, fpsClock, fps, res)
         # SHK file stuff
-        self.FileLocationOutline = pygame.Rect((20, 200), (900, 50))
-        self.FLFont = createFont(constants.white, 25, "./assets/CourierPrimeCode-Regular.ttf")
-        buttonPos = (self.FileLocationOutline.x + (self.FileLocationOutline.w + 20), self.FileLocationOutline.y)
-        buttonSize = (125, self.FileLocationOutline.height)
-        buttonFont = createFont(constants.white, 30, "./assets/CourierPrimeCode-Regular.ttf")
-        self.FileButton = Button(buttonPos, buttonSize, buttonFont, "browse", constants.whiteGray, constants.white, width=3, rounding=5)
-        self.FONT_FileToParse = createFont(constants.white, 40, "./assets/CourierPrimeCode-Regular.ttf")
-        self.directoryToScript = ""
+        self.INPUT_FileSelector = FileSelector((20, 200), 900, constants.white, constants.white, 125, constants.whiteGray, constants.white, "SHK File: ", ButtonWidth=3, rounding=5)
+        self.INPUT_directoryToScript = ""
 
         # output file stuff
-        self.OUTPUT_FileLocationOutline = pygame.Rect((20, self.FileLocationOutline.y + 150), self.FileLocationOutline.size)
-        self.OUTPUT_FLFont = createFont(constants.white, 25, "./assets/CourierPrimeCode-Regular.ttf")
-        buttonPos = (self.OUTPUT_FileLocationOutline.x + (self.OUTPUT_FileLocationOutline.w + 20), self.OUTPUT_FileLocationOutline.y)
-        buttonSize = (125, self.OUTPUT_FileLocationOutline.height)
-        buttonFont = createFont(constants.white, 30, "./assets/CourierPrimeCode-Regular.ttf")
-        self.OUTPUT_FileButton = Button(buttonPos, buttonSize, buttonFont, "browse", constants.whiteGray, constants.white, width=3, rounding=5)
-        self.OUTPUT_FONT_ResultFile = createFont(constants.white, 40, "./assets/CourierPrimeCode-Regular.ttf")
+        self.OUTPUT_FileSelector = FileSelector((20, self.INPUT_FileSelector.FileLocationOutline.y + 150), self.INPUT_FileSelector.FileLocationOutline.width, constants.white, constants.white, 125, constants.whiteGray, constants.white, "Result File: ", ButtonWidth=3, rounding=5)
         self.OUTPUT_DirectoryToFile = ""
 
         # other
@@ -45,6 +31,12 @@ class PythonConvertMenu:
 
         self.BUFFER_Error = ""
 
+        font = BetterFont(constants.white, 50, "./assets/CourierPrimeCode-Regular.ttf")
+        self.BUTTON_back = Button((5, 5), (150, 50), font, "BACK", constants.whiteGray, constants.white, width=3, rounding=5)
+
+        self.autoCode = {pygame.K_PERIOD: False, pygame.K_SLASH: False, pygame.K_f: False}
+        self.hasRun = False
+
 
 
     def run(self) -> MenuResponses:  # noqa:E303
@@ -53,32 +45,43 @@ class PythonConvertMenu:
 
             events = pygame.event.get()  # so that we can hook into other event handlers if needed.
             # event hooking
-            self.FileButton.handleEvents(events)
-            self.OUTPUT_FileButton.handleEvents(events)
+            self.INPUT_FileSelector.handle_events(events)
+            self.INPUT_directoryToScript = self.INPUT_FileSelector.directoryToFile
+            triggered = self.OUTPUT_FileSelector.handle_events(events, HandleTrigger=False)
             self.convertButton.handleEvents(events)
+            self.BUTTON_back.handleEvents(events)
 
             # event handling
             for event in events:
                 if event.type == pygame.QUIT:
                     return MenuResponses.QUIT
 
+                if event.type == pygame.KEYDOWN:
+                    if event.key in self.autoCode.keys():
+                        self.autoCode[event.key] = True
+
+            # implemented in order to save me time when debugging simple changes in the file parser
+            if self.hasRun is False and all(val is True for val in self.autoCode.values()):
+                self.INPUT_directoryToScript = r"C:\Users\laksh\PycharmProjects\EasyHotkey\scripts\advancedStarter.ehk"
+                self.OUTPUT_DirectoryToFile = r"C:\Users\laksh\PycharmProjects\EasyHotkey\scripts\test.py"
+                self.INPUT_FileSelector.directoryToFile = self.INPUT_directoryToScript
+                self.OUTPUT_FileSelector.directoryToFile = self.OUTPUT_DirectoryToFile
+                self.convertButton.triggered = True
+                self.hasRun = True
+
             self.screen.fill(constants.black)
 
-            if self.FileButton.triggered:
-                self.directoryToScript = prompt_file(savedialog=False, filetypes=[("SimpleHotkey Files", "*.shk"), ("EasyHotkey Files", "*.ehk")])
-                self.FileButton.triggered = False
-
-            if self.OUTPUT_FileButton.triggered:
+            if triggered:
                 self.OUTPUT_DirectoryToFile = prompt_file(savedialog=True, filetypes=[("Python Script", "*.py")])
-                if self.OUTPUT_DirectoryToFile.count(".pyhk") < 1:
-                    self.OUTPUT_DirectoryToFile += ".pyhk"
-                self.OUTPUT_FileButton.triggered = False
+                if self.OUTPUT_DirectoryToFile.count(".py") < 1:
+                    self.OUTPUT_DirectoryToFile += ".py"
+                self.OUTPUT_FileSelector.directoryToFile = self.OUTPUT_DirectoryToFile
 
             if self.convertButton.triggered:
                 try:
-                    if self.OUTPUT_DirectoryToFile != "" and self.directoryToScript != "":
+                    if self.OUTPUT_DirectoryToFile != "" and self.INPUT_directoryToScript != "":
                         try:
-                            with open(self.directoryToScript) as inputFile:
+                            with open(self.INPUT_directoryToScript) as inputFile:
                                 res = parse(inputFile.read())
                         except PermissionError:
                             self.BUFFER_Error = "READ_PERMISSION"
@@ -97,7 +100,8 @@ class PythonConvertMenu:
                         self.BUFFER_Error = "MISSING_FILES"
                         raise Exception  # to trigger the FAILED message
 
-                except Exception:  # noqa:broad_exception
+                except Exception as exception:  # noqa:broad_exception
+                    print(exception)
                     reason = self.BUFFER_Error if self.BUFFER_Error != "" else "UNKNOWN"
                     self.convertStatus = f"Status:\nFailed (E:{self.errors[reason]})"
                     self.BUFFER_Error = ""  # reset the buffer
@@ -105,18 +109,15 @@ class PythonConvertMenu:
 
                 self.convertButton.triggered = False
 
+            if self.BUTTON_back.triggered:
+                return MenuResponses.EnterMainMenu
+
             # rendering
             # SHK file
-            self.FONT_FileToParse.render_to(self.screen, (30, self.FileLocationOutline.y - 40), "SHK File: ")
-            pygame.draw.rect(self.screen, constants.white, self.FileLocationOutline, 3, 5)
-            self.FLFont.render_to(self.screen, (self.FileLocationOutline.x + 10, self.FileLocationOutline.y + 15), self.directoryToScript)
-            self.FileButton.draw(self.screen, offsets=(2, 14))
+            self.INPUT_FileSelector.render_to(self.screen)
 
             # output file
-            self.OUTPUT_FONT_ResultFile.render_to(self.screen, (30, self.OUTPUT_FileLocationOutline.y - 40), "Result File: ")
-            pygame.draw.rect(self.screen, constants.white, self.OUTPUT_FileLocationOutline, 3, 5)
-            self.OUTPUT_FLFont.render_to(self.screen, (self.OUTPUT_FileLocationOutline.x + 10, self.OUTPUT_FileLocationOutline.y + 15), self.OUTPUT_DirectoryToFile)
-            self.OUTPUT_FileButton.draw(self.screen, offsets=(2, 14))
+            self.OUTPUT_FileSelector.render_to(self.screen)
 
             # other
             self.convertButton.draw(self.screen, offsets=(2, 10))
@@ -124,5 +125,6 @@ class PythonConvertMenu:
             self.FONT_Convert.multiline_render_to(self.screen, (10, self.RECT_Convert.y + 22), self.convertStatus)
 
             self.FONT_TopText.render_to(self.screen, (self.FONT_TopText.get_center(self.screen, "SHK -> Python Menu", x=True).x, 40), "SHK -> Python Menu")
+            self.BUTTON_back.draw(self.screen, offsets=(2, 10))
 
             pygame.display.flip()

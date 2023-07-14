@@ -129,3 +129,32 @@ class MenuResponses(Enum):
     QUIT = 1
     EnterPCMMenu = 2
     EnterMainMenu = 3
+
+class FileSelector:
+    FileLocationOutline: pygame.Rect
+    FONT_FileLocation: pygame.freetype.Font
+    FileButton: Button
+    FONT_FileToParse: pygame.freetype.Font
+    directoryToFile: str
+    Title: str
+    RectColor: ColorValue
+    def __init__(self,
+                 Pos: Coordinate,
+                 Width: float,
+                 FontColor: ColorValue,
+                 RectColor: ColorValue,
+                 ButtonSize: float,
+                 ButtonActiveColor: ColorValue,
+                 ButtonInactiveColor: ColorValue,
+                 TitleText: str,
+                 ButtonWidth: int = 0,
+                 rounding: int = 0,
+                 FontLocation: str = "./assets/CourierPrimeCode-Regular.ttf"): ...
+
+    def render_to(self,
+                  display: pygame.Surface): ...
+
+    def handle_events(self,
+                      events: list[pygame.event],
+                      HandleTrigger: bool = True,
+                      FileTypes: list[tuple[str, str]] = None) -> bool | None: ...

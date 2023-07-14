@@ -24,8 +24,10 @@ def main():
         if response == MenuResponses.QUIT:
             return
         elif response == MenuResponses.EnterPCMMenu:
+            pcm.reset()
             response = pcm.run()
         elif response == MenuResponses.EnterMainMenu:
+            mm.reset()
             response = mm.run()
 
 

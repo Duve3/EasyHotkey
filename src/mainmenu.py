@@ -1,13 +1,11 @@
 import pygame
 from utility.util import MenuResponses
+from utility.menus import Menu
 
 
-class MainMenu:
+class MainMenu(Menu):
     def __init__(self, display: pygame.Surface, fpsClock: pygame.time.Clock, fps, res):
-        self.res = (res[0], res[1])
-        self.screen = display
-        self.fpsClock = fpsClock
-        self.gameFPS = fps
+        super().__init__(display, fpsClock, fps, res)
 
 
 
@@ -20,5 +18,9 @@ class MainMenu:
             for event in events:
                 if event.type == pygame.QUIT:
                     return MenuResponses.QUIT
+
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_1:
+                        return MenuResponses.EnterPCMMenu
 
             pygame.display.flip()

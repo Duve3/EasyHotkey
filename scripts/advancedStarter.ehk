@@ -5,5 +5,9 @@
 %pause% 1s  # you can use anything from 1s to 1h anything less or more and its unlikely to function properly. Also EHK only supports ms, s, m, and h for abbreviations and if none are used then seconds are assumed.
 %key% w RELEASE  # release the key "w"
 %type% 0.1s The giant bomb exploded due to a malfunction in the button pressing stage.  # %type% is used for typing keys out and the number that comes after it is how fast to type it. Then after that is the text to write.
+%key% m1 PRESS
+%moveTo% 100 200
+%move% 10 0
 
 # structure = %instruction% -> data for instruction
+

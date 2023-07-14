@@ -1,0 +1,8 @@
+%WINAPI% FALSE
+
+%pause% 1s
+%key% M3 PRESS
+%pause% 0.01s
+%move% 0 50
+
+# script just moves mouse 4 u yea yeah

@@ -120,11 +120,11 @@ def __timeGetter(timeString: str) -> float:
 
 
 def __tokenHandler(text: str, tokens: dict, winapi: bool) -> str:
-    TokenKEY_keyOffset = 2
-    TokenKEY_operationOffset = 4
+    TokenKEY_operationOffset = 1
     TokenPAUSE_lengthOffset = 1
     TokenTYPE_stringOffset = 1
-    validTokens = ["key", "pause", "type"]
+    TokenKEY_CustomKeys = {"M1": ["pyautogui.mouseDown(button='left')", "pyautogui.mouseUp(button='left')"], "M2": ["pyautogui.mouseDown(button='right')", "pyautogui.mouseUp(button='right')"], "M3": ["pyautogui.mouseDown(button='middle')", "pyautogui.mouseUp(button='middle')"]}
+    validTokens = ["key", "pause", "type", "moveto", "move"]
     varTokens = ["winapi"]
     ListText = __createListText(text)
 
@@ -152,16 +152,27 @@ def __tokenHandler(text: str, tokens: dict, winapi: bool) -> str:
 
             # key
             if res == validTokens[0]:
-                key = line[p2 + TokenKEY_keyOffset]
-                operation = line[p2 + TokenKEY_operationOffset:p2 + TokenKEY_operationOffset + len("PRESS")]
+                spaceList = [z for z in range(0, len(line)) if line[z:].startswith(" ") and z > p2]
+
+                s1 = spaceList.pop(0)
+                s2 = spaceList.pop(0)
+
+                key = line[s1:s2].replace(" ", "")  # get the key
+                codeKey = ""
+                operation = line[s2 + TokenKEY_operationOffset:s2 + TokenKEY_operationOffset + len("PRESS")]
 
                 if operation == "PRESS":
-                    codeList.append(f"pyautogui.keyDown('{key}')")
+                    codeKey = f"pyautogui.keyDown('{key}')"
 
-                operation = line[p2 + TokenKEY_operationOffset:p2 + TokenKEY_operationOffset + len("RELEASE")]
+                operation = line[s2 + TokenKEY_operationOffset:s2 + TokenKEY_operationOffset + len("RELEASE")]
 
                 if operation == "RELEASE":
-                    codeList.append(f"pyautogui.keyUp('{key}')")
+                    codeKey = f"pyautogui.keyUp('{key}')"
+
+                if key.upper().replace(" ", "") in TokenKEY_CustomKeys.keys():
+                    codeKey = TokenKEY_CustomKeys[key.upper()][0 if operation != "RELEASE" else 1]
+
+                codeList.append(codeKey)
 
             # pause
             elif res == validTokens[1]:
@@ -183,6 +194,34 @@ def __tokenHandler(text: str, tokens: dict, winapi: bool) -> str:
 
                 codeList.append(f'pyautogui.write("{String}", interval={waitTime})')
 
+            # moving mouse to exact pos
+            elif res == validTokens[3]:
+                spaceList = [z for z in range(0, len(line)) if line[z:].startswith(" ") and z > p2]
+
+                s1 = spaceList.pop(0)
+                s2 = spaceList.pop(0)
+
+                moveX = line[s1:s2].replace(" ", "")
+                moveY = line[s2:len(line)].replace(" ", "")
+
+                codeLine = f"pyautogui.moveTo({moveX}, {moveY})"
+
+                codeList.append(codeLine)
+
+            # moving mouse to relative pos
+            elif res == validTokens[4]:
+                spaceList = [z for z in range(0, len(line)) if line[z:].startswith(" ") and z > p2]
+
+                s1 = spaceList.pop(0)
+                s2 = spaceList.pop(0)
+
+                moveX = line[s1:s2].replace(" ", "")
+                moveY = line[s2:len(line)].replace(" ", "")
+
+                codeLine = f"pyautogui.move({moveX}, {moveY})"
+
+                codeList.append(codeLine)
+
     code = __createTextFromList(codeList)
 
     return code
@@ -193,5 +232,21 @@ def parse(text: str) -> str:
     winapi = __winapiCheck(text)
     tokens = __findTags(text, winapi)
     code = __tokenHandler(text, tokens, winapi)
+    print(code)
 
     return code
+
+
+# tests
+if __name__ == "__main__":
+    default = False
+    if default:
+        with open(r"C:\Users\laksh\PycharmProjects\EasyHotkey\scripts\advancedStarter.ehk", "r") as asf:
+            print("-----------------------------------", "RESULT FROM ADVANCED STARTER SCRIPT:", parse(asf.read()), sep="\n")
+
+        with open(r"C:\Users\laksh\PycharmProjects\EasyHotkey\scripts\StarterHotkey.ehk", "r") as sf:
+            print("-----------------------------------", "RESULT FROM BASIC STARTER SCRIPT:", parse(sf.read()), sep="\n")
+
+    else:
+        with open(input("What is the directory of the script? "), "r") as f:
+            exec(parse(f.read()))
