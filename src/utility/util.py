@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from builtins import function
 from enum import Enum
 from typing import Optional
 import pygame.freetype
@@ -211,7 +210,7 @@ class FileSelector:
         self.FONT_FileLocation.render_to(display, (self.FileLocationOutline.x + 10, self.FileLocationOutline.y + 15), self.directoryToFile)
         self.FileButton.draw(display, offsets=(2, 14))
 
-    def handle_events(self, events: list[pygame.event], HandleTrigger: bool = True, CustomFunc: function = None, FileTypes: list[tuple[str, str]] = None) -> bool | None:
+    def handle_events(self, events: list[pygame.event], HandleTrigger: bool = True, CustomFunc=None, FileTypes: list[tuple[str, str]] = None) -> bool | None:
         if FileTypes is None:
             FileTypes = [("SimpleHotkey Files", "*.shk"), ("EasyHotkey Files", "*.ehk")]
         self.FileButton.handleEvents(events)

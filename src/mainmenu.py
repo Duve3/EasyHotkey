@@ -19,8 +19,10 @@ class MainMenu(Menu):
                 if event.type == pygame.QUIT:
                     return MenuResponses.QUIT
 
-                if event.type == pygame.KEYDOWN:
+                elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_1:
                         return MenuResponses.EnterPCMMenu
+                    elif event.key == pygame.K_2:
+                        return MenuResponses.EnterExecuteMenu
 
             pygame.display.flip()

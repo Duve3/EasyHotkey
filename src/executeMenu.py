@@ -1,5 +1,5 @@
 from utility.menus import Menu
-from utility.util import FileSelector, MenuResponses
+from utility.util import FileSelector, MenuResponses, BetterFont
 import utility.constants as constants
 import pygame
 from SHKFileParser import parse
@@ -25,15 +25,29 @@ class ExecuteMenu(Menu):
         self.scriptPath = ""
         self.executeFileSelector = FileSelector((20, 200), 900, constants.white, constants.white, 125, constants.whiteGray, constants.white, "SHK File: ", ButtonWidth=3, rounding=5)
 
+        # other
+        self.FONT_TopText = BetterFont(constants.white, 50, "./assets/CourierPrimeCode-Regular.ttf")
+
 
     def run(self) -> MenuResponses:  # noqa:line_sep
         while True:
             self.fpsClock.tick(self.gameFPS)
 
             events = pygame.event.get()  # so that we can hook into other event handlers if needed.
+            # event hooking
+            self.executeFileSelector.handle_events(events)
             # event handling
             for event in events:
                 if event.type == pygame.QUIT:
                     return MenuResponses.QUIT
+
+            # logic
+
+
+            # rendering
+            self.screen.fill(constants.black)
+            self.executeFileSelector.render_to(self.screen)
+
+            self.FONT_TopText.render_to(self.screen, (self.FONT_TopText.get_center(self.screen, "SHK Execution Menu", x=True).x, 40), "SHK Execution Menu2")
 
             pygame.display.flip()
